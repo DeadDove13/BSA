@@ -1,87 +1,143 @@
 #Henry Cooper
-# Task 1
-
+#Task 1
 #Checking the user input
-file=$1
-if [ -z $file ]
-then
-	echo "no input"
-	read -p "Please enter a file path"
-fi
-if [[ `wget -S --spider $file 2>&1 | grep 'HTTP/1.1 200 OK'` ]]
-then
-        echo " Remote file found"
-       echo " Downloading the file"
+if [[ $# == 0 ]]; then
+        echo "No argument supplied. Enter url or localfile"
 
-	fileName=$(basename $file)
+        read -p "URL or Filename: " fileName
+        echo $fileName | grep "http*"
 
-	scriptPath=$(cd `dirname $0` && pwd)
-	if [ ! -f $scriptPath/$fileName ]
-	then
-	wget  -q -P $scriptPath $file
-	fi
-
-	file=$scriptPath/$fileName
-
-elif echo $file | grep -q "http"
-then
-        echo "Remote file could not be found. Exiting..."
-        exit 1
-else
-        file_ext=$(echo "$file" | awk -F "." {'print$2'};)
-        if [ ! $file_ext == "" ]
-        then
-                if [ $file_ext == "txt" ]
-                then
-                        if [ -f $file ]
-                        then
-                                echo "importing local file"
-                                file=$file
-                        else
-                                echo " file doesn't exist. Exiting..."
-                                exit 1
-                        fi
+        if [[ $? == 0 ]]; then
+                echo "URL Given, Downloading file"
+                wget $fileName
+                if [[ $? == 0 ]]; then
+                        file="legends.txt"
+                        echo "file download successful"
                 else
-                        echo "'$file' is not a txt file. Exiting..."
+                        echo "File download unsuccessful"
+                        exit 1
+                fi
+        else
+                if [[ ! -f $fileName ]]; then
+                        echo "localfile does not exist"
+                        echo "Exiting"
+                        exit 1
+                else
+                        file=$fileName
+                fi
+        fi
+fi
+#Is the csv file web bassed?
+if [[ $# > 0 ]];
+then
+        fileName=$1
+        echo $fileName | grep "http*"
+
+        if [[ $? == 0 ]]; then
+                echo "Downloading file"
+                wget $fileName
+                if [[ $? == 0 ]]; then
+                        file="legends.txt"
+                        echo "file download successful"
+                else
+                        echo "Download Failed"
                         exit 1
                 fi
         fi
 fi
 
-file=$1
-IFS=":"
-while read col1 col2 col3 col4 col5 col6 col7 col8; do
-echo $col1 
-echo $col2
-echo $col3
-echo $col4
-echo $col5
-echo $col6
-echo $col7
-echo $col8
-done <$file
+	
+#Function to set passwords
+function setPassword {
+username=$1
 
-file=$1
-createUser() {
-echo creating $username
-sudo useradd -d /home/$username -m -s /bin/bash $uername
-
-if [[ $? == 0 ]];
-then
-echo "User $username created successfully"
-else
-echo "User $username already exists"
+#sets each users password automaticly
+echo "setting password"
+if [[ $username == "bill" ]]; then
+        password="not_cracked"
+elif [[ $username = "ozalp" ]]; then
+        password="12udort"
+elif [[ $username = "sklower" ]]; then
+        password="theikh!!!"
+elif [[ $username = "kidle" ]]; then
+        password="jilland1"
+elif [[ $username = "kurt" ]]; then
+        password="sacristy"
+elif [[ $username = "schmidt" ]]; then
+        password="wendy!!!"
+elif [[ $username = "hpk" ]]; then
+        password="graduat"
+elif [[ $username = "tbl" ]]; then
+        password="pnn521"
+elif [[ $username = "jfr" ]]; then
+        password="m5%ghj"
+elif [[ $username = "mark" ]]; then
+        password="uio"
+elif [[ $username = "dmr" ]]; then
+        password="dmac"
+elif [[ $username = "ken" ]]; then
+        password="p/q2-q4!"
+elif [[ $username = "sif" ]]; then
+        password="axolotl"
+elif [[ $username = "scj" ]]; then
+        password="pdq;dq"
+elif [[ $username = "pjw" ]]; then
+        password="uucpuucp"
+elif [[ $username = "bwk" ]]; then
+        password="/.,/.,"
+elif [[ $username = "uucp" ]]; then
+        password="whatnot"
+elif [[ $username = "srb" ]]; then
+        password="bourne"
+elif [[ $username = "mckusick" ]]; then
+        password="foobar"
+elif [[ $username = "peter" ]]; then
+        password="...hello"
+elif [[ $username = "henry" ]]; then
+        password="sn74193n"
+elif [[ $username = "jkf" ]]; then
+        password="sherril."
+elif [[ $username = "fateman" ]]; then
+        password="apr1744"
+elif [[ $username = "fabry" ]]; then
+        password="561cml"
 fi
 
-sudo echo $username:$password | sudo chpasswd
-if [[ $? == 0 ]];
-then
-echo "User $username password changed"
-return 0
+#Displays outcome of password setting
+echo $username:$password | sudo chpasswd
+if [[ $? == 0 ]]; then
+        echo "Password for $username set"
 else
-echo "User $username not changed"
-return 1
+        echo "Password not set, oh no!"
 fi
 }
 
-createUser $1 
+#Function to create users 
+function createUser {
+        username=$1
+        group=$2
+        homedir=$3
+        shell=$4
+        echo "creating $username"
+	sudo useradd -m -d $homedir -s $shell $username
+
+        if [[ $? == 0 ]]; then
+                echo "========"
+                echo "User $username created successfully"
+
+                setPassword $username
+        else
+                echo "yeah nah $username already exists"
+        fi
+}
+
+count=0
+IFS=":"
+#loops through the file.
+while read username col2 col3 col4 col5 group homedir shell;do		#big ol loop
+if [[ $count -gt 0 ]]; then
+        echo $username $group $homedir $shell
+        createUser $username $group $homedir $shell
+fi
+count=$((count+1))
+done < $file
