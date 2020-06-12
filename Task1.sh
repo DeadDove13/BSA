@@ -1,12 +1,13 @@
 #Henry Cooper
 #Task 1
 #Checking the user input
+
+#Where is the file coming from? Is it url bassed?
 if [[ $# == 0 ]]; then
         echo "No argument supplied. Enter url or localfile"
-
         read -p "URL or Filename: " fileName
         echo $fileName | grep "http*"
-
+	#Url File
         if [[ $? == 0 ]]; then
                 echo "URL Given, Downloading file"
                 wget $fileName
@@ -17,6 +18,7 @@ if [[ $# == 0 ]]; then
                         echo "File download unsuccessful"
                         exit 1
                 fi
+	#File is local
         else
                 if [[ ! -f $fileName ]]; then
                         echo "localfile does not exist"
@@ -27,7 +29,6 @@ if [[ $# == 0 ]]; then
                 fi
         fi
 fi
-#Is the csv file web bassed?
 if [[ $# > 0 ]];
 then
         fileName=$1
@@ -44,13 +45,10 @@ then
                         exit 1
                 fi
         fi
-fi
-
-	
+fi	
 #Function to set passwords
 function setPassword {
 username=$1
-
 #sets each users password automaticly
 echo "setting password"
 if [[ $username == "bill" ]]; then
@@ -102,7 +100,6 @@ elif [[ $username = "fateman" ]]; then
 elif [[ $username = "fabry" ]]; then
         password="561cml"
 fi
-
 #Displays outcome of password setting
 echo $username:$password | sudo chpasswd
 if [[ $? == 0 ]]; then
@@ -111,7 +108,6 @@ else
         echo "Password not set, oh no!"
 fi
 }
-
 #Function to create users 
 function createUser {
         username=$1
@@ -130,10 +126,9 @@ function createUser {
                 echo "yeah nah $username already exists"
         fi
 }
-
+#loops through the file.
 count=0
 IFS=":"
-#loops through the file.
 while read username col2 col3 col4 col5 group homedir shell;do		#big ol loop
 if [[ $count -gt 0 ]]; then
         echo $username $group $homedir $shell
